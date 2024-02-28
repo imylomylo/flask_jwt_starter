@@ -1,3 +1,63 @@
 #!/bin/bash
-TOKEN=$(curl -s -X POST -H 'Content-Type: application/json' -d '{"username":"user1","password":"password1"}' http://127.0.0.1:5000/login | jq -r '.access_token')
-curl -X GET http://127.0.0.1:5000/protected -H "Authorization: Bearer $TOKEN"
+#TOKEN=$(curl -s -X POST -H 'Content-Type: application/json' -d '{"username":"user1","password":"password1"}' http://127.0.0.1:5000/login | jq -r '.access_token')
+#curl -X GET http://127.0.0.1:5000/protected -H "Authorization: Bearer $TOKEN"
+
+# Login to get access and refresh tokens
+login_response=$(curl -s -X POST \
+  -H "Content-Type: application/json" \
+  -d '{"username": "user1", "password": "password1"}' \
+  http://localhost:5000/login)
+
+# Extract tokens from login response
+access_token=$(echo $login_response | jq -r '.access_token')
+refresh_token=$(echo $login_response | jq -r '.refresh_token')
+
+echo $access_token
+echo "access ^ and refresh v"
+echo $refresh_token
+
+# Access protected resource using the access token
+curl -X GET \
+  -H "Authorization: Bearer $access_token" \
+  http://localhost:5000/protected
+
+echo "Waiting 1 minute to expire the token"
+sleep 5
+echo "30 seconds to go"
+sleep 7
+
+# Attempt to access protected resource with expired access token
+expired_response=$(curl -s -X GET \
+  -H "Authorization: Bearer $access_token" \
+  http://localhost:5000/protected)
+
+# Extract the error message from the response
+error_message=$(echo $expired_response | jq '.error')
+
+echo $error_message
+
+# If access token has expired, use refresh token to get a new access token
+if [ "$error_message"="Token has expired" ]; then
+  echo "Refreshing token"
+  refresh_response=$(curl -s -X POST \
+    -H "Authorization: Bearer $refresh_token" \
+    http://localhost:5000/refresh)
+  
+  # Extract new access token from refresh response
+  new_access_token=$(echo $refresh_response | jq -r '.access_token')
+  new_refresh_token=$(echo $refresh_response | jq -r '.refresh_token')
+
+  echo $new_access_token
+  echo "^ new access token v old access token"
+  echo $access_token
+  echo ""
+  echo $new_refresh_token
+  echo "^ new refresh token v old refresh token"
+  echo $refresh_token
+  
+  
+  # Access protected resource using the new access token
+  curl -X GET \
+    -H "Authorization: Bearer $new_access_token" \
+    http://localhost:5000/protected
+fi
