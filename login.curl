@@ -60,4 +60,10 @@ if [ "$error_message"="Token has expired" ]; then
   curl -X GET \
     -H "Authorization: Bearer $new_access_token" \
     http://localhost:5000/protected
+
+  echo "Logging out"
+  sleep 3
+  curl -X POST -H "Authorization: Bearer $new_access_token" http://127.0.0.1:5000/logout
 fi
+
+curl -s -X GET  -H "Authorization: Bearer $access_token" http://localhost:5000/protected
