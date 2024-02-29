@@ -1,0 +1,9 @@
+version: "3.8"
+services:
+ flask_docker:
+   #image: python:3.11-alpine
+   build: .
+   container_name: flask_docker
+   ports:
+     - 5000:5000
+   tty: true
