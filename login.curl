@@ -21,9 +21,9 @@ curl -X GET \
   -H "Authorization: Bearer $access_token" \
   http://localhost:5000/protected
 
-echo "Waiting 1 minute to expire the token"
+echo "Waiting 12 seconds to expire the token"
 sleep 5
-echo "30 seconds to go"
+echo "7 seconds to go"
 sleep 7
 
 # Attempt to access protected resource with expired access token

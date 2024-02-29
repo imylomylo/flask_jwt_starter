@@ -6,7 +6,7 @@ app = Flask(__name__)
 
 # Set up JWT
 app.config['JWT_SECRET_KEY'] = 'your_secret_key'  # Change this to your own secret key
-app.config['JWT_ACCESS_TOKEN_EXPIRES'] = 5  # Expiration time in seconds (1 minute)
+app.config['JWT_ACCESS_TOKEN_EXPIRES'] = 5  # Expiration time in seconds (60 = 1 minute)
 app.config['JWT_REFRESH_TOKEN_EXPIRES'] = 3600  # Refresh token expiration time in seconds (1 hour)
 
 jwt = JWTManager(app)
