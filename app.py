@@ -1,8 +1,11 @@
 from flask import Flask, jsonify, request
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity, get_jwt, create_refresh_token
+from flask_redoc import Redoc
 
 # Create a Flask app instance
 app = Flask(__name__)
+app.config['REDOC'] = {'spec_route': '/spec', 'title': 'Spec'}
+redoc = Redoc(app, 'spec.yml')
 
 # Set up JWT
 app.config['JWT_SECRET_KEY'] = 'your_secret_key'  # Change this to your own secret key
