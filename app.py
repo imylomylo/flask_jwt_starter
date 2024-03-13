@@ -1,13 +1,19 @@
 from flask import Flask, jsonify, request
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity, get_jwt, create_refresh_token
+from flask_cors import CORS, cross_origin
 
 # Create a Flask app instance
 app = Flask(__name__)
+cors = CORS(app)
 
 # Set up JWT
 app.config['JWT_SECRET_KEY'] = 'your_secret_key'  # Change this to your own secret key
 app.config['JWT_ACCESS_TOKEN_EXPIRES'] = 5  # Expiration time in seconds (60 = 1 minute)
 app.config['JWT_REFRESH_TOKEN_EXPIRES'] = 3600  # Refresh token expiration time in seconds (1 hour)
+
+# set up cors
+app.config['CORS_HEADERS'] = 'Content-Type'
+
 
 jwt = JWTManager(app)
 
@@ -19,6 +25,7 @@ users = {
 
 # Authentication endpoint
 @app.route('/login', methods=['POST'])
+@cross_origin()
 def login():
     data = request.get_json()
     username = data.get('username')
@@ -34,6 +41,7 @@ def login():
 # Logout endpoint
 @app.route('/logout', methods=['POST'])
 @jwt_required()
+@cross_origin()
 def logout():
     jti = get_jwt()['jti']  # JWT ID
     return jsonify({"message": "Successfully logged out"}), 200
@@ -41,6 +49,7 @@ def logout():
 # Token refresh endpoint
 @app.route('/refresh', methods=['POST'])
 @jwt_required(refresh=True)
+@cross_origin()
 def refresh():
     refresh_token = request.headers.get('Authorization').split()[1]
     try:
@@ -58,6 +67,7 @@ def handle_expired_token(jwt_header, jwt_payload):
 # Protected endpoint
 @app.route('/protected', methods=['GET'])
 @jwt_required()
+@cross_origin()
 def protected():
     current_user = get_jwt_identity()
     return jsonify(logged_in_as=current_user), 200
@@ -65,6 +75,7 @@ def protected():
 
 # Define a route and a view function
 @app.route('/')
+@cross_origin()
 def hello():
     return 'Hello, World!'
 
